@@ -1,101 +1,24 @@
 {
   "DISCOVERY": [
     {
-      "question": "What are the top-level directories in the autoware repository and what is the purpose of each?",
-      "answer": "repositories/ -- VCS manifest .repos files listing all sub-repos to clone with vcs; docker/ -- layered Dockerfile hierarchy (base, core, universe, CUDA variants) plus docker-bake.hcl and example compose files; ansible/ -- Ansible roles and playbooks for environment provisioning (ROS 2, CUDA, TensorRT, agnocast, ML model artifacts, build tools); .github/workflows/ -- CI/CD automation (docker build/push, health checks, lockfile regeneration, version bumping); src/ -- empty placeholder directory populated by vcs import src < repositories/autoware.repos; .devcontainer/ -- VS Code devcontainer configs for core-devel and universe-devel images.",
-      "evidence": "File tree from git/trees/HEAD recursive; src/README.md explicitly states the autoware repository itself does not contain the full source code. Instead, it references many separately maintained repositories."
+      "question": "What are the top-level directories in the SNAPKITTYWEST/autoware repository and what is the purpose of each?",
+      "answer": "repositories/ — VCS manifest .repos files (autoware.repos, simulator.repos, tools.repos, nightly variants) listing all sub-repos to clone via the vcs tool; docker/ — layered Dockerfile hierarchy (base → core → universe ± CUDA) plus docker-bake.hcl and example compose files; ansible/ — Ansible roles and playbooks for environment provisioning (ROS 2, CUDA, TensorRT, agnocast, ML model artifacts, build tools, version locking); .github/workflows/ — CI/CD automation (docker-build-and-push, health-check, regenerate-lockfiles, bump-repo-versions, watch-huggingface-hub-major); src/ — empty placeholder directory populated at build time via vcs import src < repositories/autoware.repos; .devcontainer/ — VS Code devcontainer configs for core-devel, universe-devel, and universe-devel-cuda images.",
+      "evidence": "File tree from git/trees/HEAD recursive; src/README.md: 'the autoware repository itself does not contain the full source code. Instead, it references many separately maintained repositories'; TRAINING/ARCHITECTURE_SUMMARY.md confirms this structure"
     },
     {
-      "question": "What ROS 2 distributions does Autoware support, and what Ubuntu versions do they target?",
-      "answer": "Two distributions are supported: ROS 2 Humble on Ubuntu 22.04 (Jammy), and ROS 2 Jazzy on Ubuntu 24.04 (Noble). The docker-bake.hcl defines a default of jazzy. Health-check CI runs matrix entries for both humble and jazzy across amd64 and arm64 platforms.",
-      "evidence": "docker/docker-bake.hcl: variable ROS_DISTRO default=jazzy; BASE_IMAGE_DIGESTS has keys humble and jazzy; .github/workflows/health-check.yaml matrix includes main/amd64/humble, main-jazzy-amd64/amd64/jazzy, etc.; ansible/vars/ contains locked-versions-humble-amd64.yaml and locked-versions-jazzy-amd64.yaml"
+      "question": "What ROS 2 distributions and target Ubuntu versions does Autoware support?",
+      "answer": "Two distributions: ROS 2 Humble targeting Ubuntu 22.04 (Jammy) and ROS 2 Jazzy targeting Ubuntu 24.04 (Noble). The docker-bake.hcl sets ROS_DISTRO default to jazzy. The health-check workflow matrix covers both: main/amd64/humble, main-arm64/arm64/humble, main-jazzy-amd64/amd64/jazzy, main-jazzy-arm64/arm64/jazzy. Locked version files exist for all four combinations: locked-versions-humble-amd64.yaml, locked-versions-humble-arm64.yaml, locked-versions-jazzy-amd64.yaml, locked-versions-jazzy-arm64.yaml.",
+      "evidence": "docker/docker-bake.hcl: variable ROS_DISTRO { default = 'jazzy' }; BASE_IMAGE_DIGESTS has keys humble and jazzy; .github/workflows/health-check.yaml matrix block; ansible/vars/ directory listing"
     },
     {
-      "question": "What categories of sub-repositories does repositories/autoware.repos define?",
-      "answer": "Five top-level categories: (1) core/ -- foundational packages: agnocast, autoware_msgs, autoware_adapi_msgs, autoware_internal_msgs, autoware_cmake, autoware_utils, autoware_lanelet2_extension, autoware_core, autoware_rviz_plugins, autoware_simple_planning_simulator, autoware_system_designer; (2) universe/ -- autoware_universe plus external dependencies (tier4_autoware_msgs, morai_msgs, eagleye, bevdet_vendor, cuda_blackboard, managed_transform_buffer, muSSP, etc.); (3) launcher/ -- autoware_launch; (4) sensor_component/ -- nebula sensor drivers, transport_drivers, ros2_socketcan; plus nightly variants in autoware-nightly.repos.",
-      "evidence": "repositories/autoware.repos section headers and entries: core/agnocast v2.3.5, universe/autoware_universe v0.52.1, launcher/autoware_launch v0.52.0, sensor_component/external/nebula v1.1.0"
+      "question": "What sub-repository categories does repositories/autoware.repos define?",
+      "answer": "Five categories: (1) core/ — foundational packages: agnocast v2.3.5, autoware_msgs v1.13.0, autoware_adapi_msgs v1.9.2, autoware_internal_msgs v1.15.0, autoware_cmake v1.4.0, autoware_utils v1.10.0, autoware_lanelet2_extension v1.2.0, autoware_core v1.9.0, autoware_rviz_plugins v0.6.0, autoware_simple_planning_simulator v1.0.0, autoware_system_designer v0.4.2; (2) universe/ — autoware_universe v0.52.1 plus external deps (tier4_autoware_msgs v0.70.0-rc, cuda_blackboard v0.4.0, managed_transform_buffer v0.2.0, bevdet_vendor v0.1.0, eagleye, muSSP, glog, negotiated); (3) launcher/ — autoware_launch v0.52.0; (4) sensor_component/ — nebula v1.1.0 (sensor drivers), ros2_socketcan, transport_drivers, sensor_component_description.",
+      "evidence": "repositories/autoware.repos full content read"
     },
     {
-      "question": "What is the top-level entry point for running the Autoware planning simulator demo?",
-      "answer": "The planning simulator demo is launched via: ros2 launch autoware_launch planning_simulator.launch.xml map_path:=/home/aw/autoware_data/maps/sample-map-planning vehicle_model:=sample_vehicle sensor_model:=sample_sensor_kit. The autoware:universe-jazzy Docker image is used (without CUDA). Maps and ML models are mounted from the host at ~/autoware_data/.",
-      "evidence": "docker/examples/demos/planning-simulator/docker-compose.yaml: command block and image ghcr.io/autowarefoundation/autoware:universe-jazzy"
-    },
-    {
-      "question": "What Docker image is published for GPU-accelerated Autoware and how is it run?",
-      "answer": "The GPU image is ghcr.io/autowarefoundation/autoware:universe-cuda-jazzy. It requires runtime: nvidia in Docker Compose, NVIDIA_DRIVER_CAPABILITIES=all, and --network_mode: host. The AWSIM demo uses this image with ros2 launch autoware_launch e2e_simulator.launch.xml vehicle_model:=sample_vehicle sensor_model:=awsim_sensor_kit map_path:=/home/aw/autoware_data/maps/Shinjuku-Map/map.",
-      "evidence": "docker/examples/demos/awsim/docker-compose.yaml: image, runtime, deploy.resources.reservations.devices with driver: nvidia"
-    }
-  ],
-  "EXTRACTION": [
-    {
-      "question": "What exact version of agnocast is pinned in repositories/autoware.repos?",
-      "answer": "agnocast v2.3.5 \u2014 url: https://github.com/tier4/agnocast.git, version: v2.3.5",
-      "evidence": "repositories/autoware.repos: core/agnocast entry"
-    },
-    {
-      "question": "What is the default ROS middleware (rmw) implementation configured for Autoware Docker images?",
-      "answer": "rmw_cyclonedds_cpp \u2014 set in ansible/roles/rmw_implementation/defaults/main.yaml and applied via the RMW_IMPLEMENTATION environment variable in Docker images.",
-      "evidence": "ansible/roles/rmw_implementation/defaults/main.yaml: rmw_implementation: rmw_cyclonedds_cpp; docker/universe.Dockerfile: ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}"
-    },
-    {
-      "question": "What CUDA version is targeted by the Autoware universe-cuda image?",
-      "answer": "CUDA 13.0 \u2014 the docker-bake.hcl specifies CUDA_VERSION=13.0 for the cuda target group.",
-      "evidence": "docker/docker-bake.hcl: variable CUDA_VERSION { default = 13.0 }"
-    },
-    {
-      "question": "Where are ML model weights stored after the artifacts Ansible role runs?",
-      "answer": "Model weights are downloaded to /home/aw/autoware_data/ on the host (or container). The artifacts role uses huggingface-cli to fetch from the AutowareFoundation organization on HuggingFace Hub.",
-      "evidence": "ansible/roles/artifacts/tasks/main.yaml: dest: /home/aw/autoware_data/; huggingface-cli download AutowareFoundation/*"
-    }
-  ],
-  "CLASSIFICATION": [
-    {
-      "question": "What type of repository is autoware \u2014 monorepo, meta-repo, or library?",
-      "answer": "Meta-repository / orchestration repo. The autoware repository contains no AV source code itself; it holds VCS manifest files (.repos), Docker build definitions, Ansible provisioning, and CI/CD. The actual AV stack is spread across separately versioned sub-repositories cloned via vcs tool.",
-      "evidence": "src/README.md statement; repositories/ directory contains only .repos manifest files"
-    },
-    {
-      "question": "How is the Autoware Docker build pipeline structured in terms of image layers?",
-      "answer": "Four-layer hierarchy: (1) base -- installs ROS 2 base, creates user aw, sets locale; (2) core -- installs core ROS 2 packages via Ansible, builds autoware_core sub-repos; (3) universe -- extends core-devel, installs CUDA/TensorRT/ML artifacts, builds autoware_universe; (4) CUDA variant -- universe image with GPU runtime. Each layer has a -devel variant (with build tools) and a slim production variant.",
-      "evidence": "docker/base.Dockerfile, docker/core.Dockerfile, docker/universe.Dockerfile, docker/docker-bake.hcl target hierarchy"
-    }
-  ],
-  "RELATIONSHIP": [
-    {
-      "question": "What is the dependency relationship between the universe Dockerfile and the core Dockerfile?",
-      "answer": "universe.Dockerfile depends on the core-devel image as its base. It uses ARG CORE_DEVEL_IMAGE and FROM ${CORE_DEVEL_IMAGE} AS universe-dependencies, meaning a universe image cannot be built without first building core-devel.",
-      "evidence": "docker/universe.Dockerfile: ARG CORE_DEVEL_IMAGE; FROM ${CORE_DEVEL_IMAGE} AS universe-dependencies"
-    },
-    {
-      "question": "Which Ansible roles are invoked by install_image_deps.yaml and in what order?",
-      "answer": "Order: (1) version_lock (pre_task, tagged always) -- imports locked APT/pip versions; (2) ros2 (tags: base,core,universe,rmw); (3) agnocast (tags: universe,agnocast); (4) cuda (tags: universe,nvidia,cuda); (5) tensorrt (tags: universe,nvidia,tensorrt); (6) artifacts (tags: universe,artifacts); (7) rmw_implementation (tags: base,core,universe,rmw).",
-      "evidence": "ansible/playbooks/install_image_deps.yaml: pre_tasks and roles listing"
-    }
-  ],
-  "ARCHITECTURE": [
-    {
-      "question": "Describe the full build pipeline from source to published Docker image.",
-      "answer": "Pipeline: (1) developer pushes to GitHub; (2) docker-build-and-push.yaml workflow triggers; (3) it calls docker-build-pipeline.yaml reusable workflow; (4) which runs docker buildx bake using docker/docker-bake.hcl; (5) bake builds base, then core (calling Ansible install_image_deps.yaml with base/core tags), then universe (calling Ansible with universe/cuda/tensorrt/artifacts tags); (6) images are pushed to GHCR as ghcr.io/autowarefoundation/autoware:{variant}-{distro}; (7) health-check.yaml then validates the published images by running the planning-simulator and AWSIM demo compose stacks.",
-      "evidence": ".github/workflows/docker-build-and-push.yaml, docker-build-pipeline.yaml, health-check.yaml, docker/docker-bake.hcl"
-    }
-  ],
-  "BEHAVIOR": [
-    {
-      "question": "What happens when a new major model version appears on HuggingFace Hub for AutowareFoundation?",
-      "answer": "The watch-huggingface-hub-major.yaml workflow runs on a schedule, polls the HuggingFace Hub API for new major versions of AutowareFoundation models, and automatically opens a pull request updating the model version references in the artifacts Ansible role. A maintainer then reviews and merges the PR.",
-      "evidence": ".github/workflows/watch-huggingface-hub-major.yaml: schedule trigger, HF API polling logic, gh pr create call"
-    },
-    {
-      "question": "How are APT package versions kept reproducible across builds?",
-      "answer": "The regenerate-lockfiles.yaml CI workflow periodically runs the Ansible playbooks against a fresh environment and captures the resolved package versions into ansible/vars/locked-versions-{distro}-{arch}.yaml files. These lockfiles are committed to the repository. The version_lock Ansible role (tagged always) imports the appropriate lockfile at the start of every playbook run, pinning all package versions.",
-      "evidence": ".github/workflows/regenerate-lockfiles.yaml; ansible/roles/version_lock/tasks/main.yaml; ansible/vars/locked-versions-jazzy-amd64.yaml"
-    }
-  ],
-  "RECONSTRUCTION": [
-    {
-      "question": "How would you reproduce a complete Autoware development environment from scratch?",
-      "answer": "Steps: (1) Install Docker with buildx and NVIDIA Container Toolkit (for GPU); (2) Clone autoware repo; (3) Pull the appropriate devcontainer image: ghcr.io/autowarefoundation/autoware:universe-devel-jazzy; (4) Open in VS Code with Remote-Containers (devcontainer.json in .devcontainer/universe-devel/); (5) Inside the container, run: mkdir src && vcs import src < repositories/autoware.repos; (6) Install ROS dependencies: rosdep install --from-paths src --ignore-src -r -y; (7) Build: colcon build --symlink-install; (8) Download model weights: ansible-playbook ansible/playbooks/install_image_deps.yaml --tags artifacts.",
-      "evidence": "src/README.md build instructions; .devcontainer/universe-devel/devcontainer.json; ansible/playbooks/install_image_deps.yaml"
+      "question": "What Docker image must be used for the AWSIM end-to-end simulator demo and what are its GPU requirements?",
+      "answer": "The AWSIM demo uses ghcr.io/autowarefoundation/autoware:universe-cuda-jazzy. Requirements: runtime: nvidia, NVIDIA_DRIVER_CAPABILITIES=all, NVIDIA_VISIBLE_DEVICES=all, privileged: true, and a Docker deploy.resources.reservations with driver: nvidia. The demo maps are mounted from ${HOME}/autoware_data/maps and ml_models from ${HOME}/autoware_data/ml_models. The launch command is: ros2 launch autoware_launch e2e_simulator.launch.xml vehicle_model:=sample_vehicle sensor_model:=awsim_sensor_kit map_path:=/home/aw/autoware_data/maps/Shinjuku-Map/map.",
+      "evidence": "docker/examples/demos/awsim/docker-compose.yaml: image, runtime: nvidia, NVIDIA_DRIVER_CAPABILITIES=all, deploy.resources.reservations.devices driver: nvidia, command block"
     }
   ]
 }
