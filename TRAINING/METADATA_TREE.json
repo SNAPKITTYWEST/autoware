@@ -1,0 +1,125 @@
+{
+  "node_id": "root",
+  "node_type": "repository",
+  "name": "autoware",
+  "children": [
+    {
+      "node_id": "repositories",
+      "node_type": "subsystem",
+      "name": "repositories/ — VCS manifests",
+      "children": [
+        {
+          "node_id": "autoware_repos",
+          "node_type": "component",
+          "name": "autoware.repos",
+          "children": [
+            {
+              "node_id": "core_group",
+              "node_type": "group",
+              "name": "core/ sub-repos",
+              "children": [
+                {
+                  "node_id": "agnocast_repo",
+                  "node_type": "external_repo",
+                  "name": "agnocast v2.3.5",
+                  "children": []
+                },
+                {
+                  "node_id": "autoware_msgs_repo",
+                  "node_type": "external_repo",
+                  "name": "autoware_msgs v1.13.0",
+                  "children": []
+                },
+                {
+                  "node_id": "autoware_adapi_msgs_repo",
+                  "node_type": "external_repo",
+                  "name": "autoware_adapi_msgs v1.9.2",
+                  "children": []
+                },
+                {
+                  "node_id": "autoware_internal_msgs_repo",
+                  "node_type": "external_repo",
+                  "name": "autoware_internal_msgs v1.15.0",
+                  "children": []
+                },
+                {
+                  "node_id": "autoware_cmake_repo",
+                  "node_type": "external_repo",
+                  "name": "autoware_cmake v1.4.0",
+                  "children": []
+                },
+                {
+                  "node_id": "autoware_utils_repo",
+                  "node_type": "external_repo",
+                  "name": "autoware_utils v1.10.0",
+                  "children": []
+                },
+                {
+                  "node_id": "autoware_lanelet2_extension_repo",
+                  "node_type": "external_repo",
+                  "name": "autoware_lanelet2_extension v1.2.0",
+                  "children": []
+                },
+                {
+                  "node_id": "autoware_core_repo",
+                  "node_type": "external_repo",
+                  "name": "autoware_core v1.9.0",
+                  "children": []
+                },
+                {
+                  "node_id": "autoware_rviz_plugins_repo",
+                  "node_type": "external_repo",
+                  "name": "autoware_rviz_plugins v0.6.0",
+                  "children": []
+                },
+                {
+                  "node_id": "autoware_simple_planning_simulator_repo",
+                  "node_type": "external_repo",
+                  "name": "autoware_simple_planning_simulator v1.0.0",
+                  "children": []
+                },
+                {
+                  "node_id": "autoware_system_designer_repo",
+                  "node_type": "external_repo",
+                  "name": "autoware_system_designer v0.4.2",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "node_id": "universe_group",
+              "node_type": "group",
+              "name": "universe/ sub-repos",
+              "children": [
+                {
+                  "node_id": "autoware_universe_repo",
+                  "node_type": "external_repo",
+                  "name": "autoware_universe v0.52.1",
+                  "children": []
+                },
+                {
+                  "node_id": "tier4_autoware_msgs_repo",
+                  "node_type": "external_repo",
+                  "name": "tier4_autoware_msgs v0.70.0-rc",
+                  "children": []
+                },
+                {
+                  "node_id": "cuda_blackboard_repo",
+                  "node_type": "external_repo",
+                  "name": "cuda_blackboard v0.4.0",
+                  "children": []
+                },
+                {
+                  "node_id": "managed_transform_buffer_repo",
+                  "node_type": "external_repo",
+                  "name": "managed_transform_buffer v0.1.0",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
