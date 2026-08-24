@@ -1,0 +1,247 @@
+[
+  {
+    "from": "autoware_repos",
+    "to": "core_group",
+    "relationship": "contains",
+    "evidence": "repositories/autoware.repos lists core/* entries",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "autoware_repos",
+    "to": "universe_group",
+    "relationship": "contains",
+    "evidence": "repositories/autoware.repos lists universe/* entries including autoware_universe v0.52.1",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "autoware_repos",
+    "to": "launcher_group",
+    "relationship": "contains",
+    "evidence": "repositories/autoware.repos lists launcher/autoware_launch v0.52.0",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "autoware_repos",
+    "to": "sensor_component_group",
+    "relationship": "contains",
+    "evidence": "repositories/autoware.repos lists sensor_component/external/nebula v1.1.0",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "simulator_repos",
+    "to": "scenario_simulator_repo",
+    "relationship": "contains",
+    "evidence": "repositories/simulator.repos: scenario_simulator_v2 v22.0.0",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "tools_repos",
+    "to": "autoware_tools_repo",
+    "relationship": "contains",
+    "evidence": "repositories/tools.repos: autoware_tools v0.7.0",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "base_dockerfile",
+    "to": "base_stage",
+    "relationship": "produces",
+    "evidence": "docker/base.Dockerfile: FROM ros:{distro}-ros-base; creates user aw",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "core_dockerfile",
+    "to": "core_dependencies_stage",
+    "relationship": "produces",
+    "evidence": "docker/core.Dockerfile: FROM ${BASE_IMAGE} AS core-dependencies",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "core_dependencies_stage",
+    "to": "core_devel_stage",
+    "relationship": "produces",
+    "evidence": "docker/core.Dockerfile: FROM core-dependencies AS core-devel",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "core_devel_stage",
+    "to": "core_stage",
+    "relationship": "produces",
+    "evidence": "docker/core.Dockerfile multi-stage build; core stage copies from core-devel",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "universe_dockerfile",
+    "to": "universe_devel_stage",
+    "relationship": "produces",
+    "evidence": "docker/universe.Dockerfile: FROM ${CORE_DEVEL_IMAGE} AS universe-dependencies then universe-devel",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "universe_devel_stage",
+    "to": "universe_stage",
+    "relationship": "produces",
+    "evidence": "docker/universe.Dockerfile: COPY --from=universe-devel /opt/autoware /opt/autoware",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "install_image_deps_playbook",
+    "to": "ros2_role",
+    "relationship": "calls",
+    "evidence": "ansible/playbooks/install_image_deps.yaml: role autoware.dev_env.ros2 with tags [base,core,universe,rmw]",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "install_image_deps_playbook",
+    "to": "cuda_role",
+    "relationship": "calls",
+    "evidence": "ansible/playbooks/install_image_deps.yaml: role autoware.dev_env.cuda tags [universe,nvidia,cuda]",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "install_image_deps_playbook",
+    "to": "tensorrt_role",
+    "relationship": "calls",
+    "evidence": "ansible/playbooks/install_image_deps.yaml: role autoware.dev_env.tensorrt tags [universe,nvidia,tensorrt]",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "install_image_deps_playbook",
+    "to": "artifacts_role",
+    "relationship": "calls",
+    "evidence": "ansible/playbooks/install_image_deps.yaml: role autoware.dev_env.artifacts tags [universe,artifacts]",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "install_image_deps_playbook",
+    "to": "version_lock_role",
+    "relationship": "calls",
+    "evidence": "ansible/playbooks/install_image_deps.yaml: pre_tasks import version_lock tagged always",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "install_image_deps_playbook",
+    "to": "agnocast_role",
+    "relationship": "calls",
+    "evidence": "ansible/playbooks/install_image_deps.yaml: role autoware.dev_env.agnocast tags [universe,agnocast]",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "docker_bake",
+    "to": "base_dockerfile",
+    "relationship": "references",
+    "evidence": "docker/docker-bake.hcl: target base { dockerfile = docker/base.Dockerfile }",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "docker_bake",
+    "to": "core_dockerfile",
+    "relationship": "references",
+    "evidence": "docker/docker-bake.hcl: target core { dockerfile = docker/core.Dockerfile }",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "docker_bake",
+    "to": "universe_dockerfile",
+    "relationship": "references",
+    "evidence": "docker/docker-bake.hcl: target universe { dockerfile = docker/universe.Dockerfile }",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "docker_build_push_workflow",
+    "to": "docker_bake",
+    "relationship": "invokes",
+    "evidence": ".github/workflows/docker-build-and-push.yaml: docker buildx bake --file docker/docker-bake.hcl",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "health_check_workflow",
+    "to": "planning_simulator_demo",
+    "relationship": "validates",
+    "evidence": ".github/workflows/health-check.yaml: runs planning-simulator compose stack and checks process exits",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "devcontainer_universe",
+    "to": "universe_devel_stage",
+    "relationship": "uses",
+    "evidence": ".devcontainer/universe-devel/devcontainer.json: image ghcr.io/autowarefoundation/autoware:universe-devel-jazzy",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "cyclonedds_config",
+    "to": "rmw_implementation_role",
+    "relationship": "configures",
+    "evidence": "docker/files/cyclonedds.xml mounted; ansible/roles/rmw_implementation/defaults/main.yaml: rmw_implementation: rmw_cyclonedds_cpp",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "artifacts_role",
+    "to": "huggingface_hub",
+    "relationship": "downloads_from",
+    "evidence": "ansible/roles/artifacts/tasks/main.yaml: huggingface-cli download AutowareFoundation/* into /home/aw/autoware_data/",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "bump_repo_versions_workflow",
+    "to": "autoware_repos",
+    "relationship": "updates",
+    "evidence": ".github/workflows/bump-repo-versions-autoware.yaml: patches version tags in repositories/autoware.repos",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "regenerate_lockfiles_workflow",
+    "to": "locked_versions_vars",
+    "relationship": "regenerates",
+    "evidence": ".github/workflows/regenerate-lockfiles.yaml: runs ansible-playbook and commits updated locked-versions-*.yaml",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "watch_huggingface_workflow",
+    "to": "artifacts_role",
+    "relationship": "triggers_update_for",
+    "evidence": ".github/workflows/watch-huggingface-hub-major.yaml: detects new HF model versions and opens PRs",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "locked_versions_vars",
+    "to": "ros2_role",
+    "relationship": "pins_dependencies_for",
+    "evidence": "ansible/vars/locked-versions-jazzy-amd64.yaml: ros_packages list consumed by ros2 role apt tasks",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "locked_versions_vars",
+    "to": "tensorrt_role",
+    "relationship": "pins_dependencies_for",
+    "evidence": "ansible/vars/locked-versions-jazzy-amd64.yaml: tensorrt_packages list consumed by tensorrt role",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "planning_simulator_compose",
+    "to": "universe_stage",
+    "relationship": "uses",
+    "evidence": "docker/examples/demos/planning-simulator/docker-compose.yaml: image ghcr.io/autowarefoundation/autoware:universe-jazzy",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "awsim_compose",
+    "to": "universe_cuda_stage",
+    "relationship": "uses",
+    "evidence": "docker/examples/demos/awsim/docker-compose.yaml: image ghcr.io/autowarefoundation/autoware:universe-cuda-jazzy",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "agnocast_role",
+    "to": "agnocast_repo",
+    "relationship": "installs_from",
+    "evidence": "ansible/roles/agnocast/tasks/main.yaml: clones agnocast and runs DKMS install for kernel module",
+    "confidence": "OBSERVED"
+  },
+  {
+    "from": "universe_dockerfile",
+    "to": "core_devel_stage",
+    "relationship": "depends_on",
+    "evidence": "docker/universe.Dockerfile: ARG CORE_DEVEL_IMAGE; FROM ${CORE_DEVEL_IMAGE} as universe-dependencies",
+    "confidence": "OBSERVED"
+  }
+]
