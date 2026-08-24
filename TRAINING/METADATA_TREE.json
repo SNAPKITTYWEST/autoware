@@ -4,7 +4,7 @@
   "name": "autoware",
   "children": [
     {
-      "node_id": "repositories",
+      "node_id": "repositories_subsystem",
       "node_type": "subsystem",
       "name": "repositories/ — VCS manifests",
       "children": [
@@ -67,12 +67,6 @@
                   "children": []
                 },
                 {
-                  "node_id": "autoware_rviz_plugins_repo",
-                  "node_type": "external_repo",
-                  "name": "autoware_rviz_plugins v0.6.0",
-                  "children": []
-                },
-                {
                   "node_id": "autoware_simple_planning_simulator_repo",
                   "node_type": "external_repo",
                   "name": "autoware_simple_planning_simulator v1.0.0",
@@ -98,12 +92,6 @@
                   "children": []
                 },
                 {
-                  "node_id": "tier4_autoware_msgs_repo",
-                  "node_type": "external_repo",
-                  "name": "tier4_autoware_msgs v0.70.0-rc",
-                  "children": []
-                },
-                {
                   "node_id": "cuda_blackboard_repo",
                   "node_type": "external_repo",
                   "name": "cuda_blackboard v0.4.0",
@@ -112,7 +100,13 @@
                 {
                   "node_id": "managed_transform_buffer_repo",
                   "node_type": "external_repo",
-                  "name": "managed_transform_buffer v0.1.0",
+                  "name": "managed_transform_buffer v0.2.0",
+                  "children": []
+                },
+                {
+                  "node_id": "bevdet_vendor_repo",
+                  "node_type": "external_repo",
+                  "name": "bevdet_vendor v0.1.0",
                   "children": []
                 }
               ]
